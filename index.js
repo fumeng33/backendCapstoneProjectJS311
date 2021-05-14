@@ -1,7 +1,9 @@
 const express = require('express')
 const bodyParser = require("body-parser");
 const app = express()
-const port = process.env.PORT || 5000
+
+require("dotenv").config();
+const PORT = process.env.PORT
 
 
 app.use(bodyParser.json());
@@ -9,6 +11,6 @@ app.get('/', (req, res) => res.send('default route'));
 app.use(require("./routes/books"));
 
 
-app.listen(port, () => {
+app.listen(PORT, () => {
   console.log('app is listening on:', PORT)
 });

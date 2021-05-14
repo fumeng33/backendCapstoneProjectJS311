@@ -1,8 +1,9 @@
-let connections = require("..sql/connections");
+let connections = require("../sql/connections");
 
 //GET// list all books
 let allBooks = (req, res) => {
   console.log("Inside the GET list all books funciton", req.params);
+  
   
   res.send("success")
 }
@@ -33,7 +34,7 @@ let editBookById = (req, res) => {
 }
 
 //POST// add book
-let addBooks = (req, res) => {
+let addBook = (req, res) => {
   console.log("Inside the add book  function", req.body);
   res.send("success")
 }
@@ -45,26 +46,4 @@ let deleteBook = (req, res) => {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-module.exports =(allBooks, booksById, genre, titles, authors, editBookById, addBook, deleteBook);
+module.exports ={allBooks, booksById, genre, authors, editBookById, addBook, deleteBook};
