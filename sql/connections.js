@@ -11,7 +11,13 @@ class Connection {
         password: 'Olemiss082894!', 
         database: 'booksdb2'
       })
-      return this.pool
+      this.pool.query('SELECT now()', (err,rows) => {
+        if (err) {
+          console.error("Fail to connect", err);
+        }
+
+        console.log("connected, the time is", row[0]);
+      })
     }
     return this.pool
   }

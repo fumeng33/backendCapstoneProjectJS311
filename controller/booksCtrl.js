@@ -1,17 +1,31 @@
 let connections = require("../sql/connections");
 
+
+
 //GET// list all books
 let allBooks = (req, res) => {
   console.log("Inside the GET list all books funciton", req.params);
-  
-  
+  let id = req.params.id
+  let sql = "SELECT id, book_title FROM books WHERE id =?"
+  connections.query(sql, [id], (error, rows) => {
+    console.log("ROWS:", rows)
+    if (error) {
+      console.error("failed to query the db", error);
+      res.sendStatus(500);
+    } else if (!rows || rows.length == 0) {
+      res.sendStatus(404);
+    } else {
+      res.send(rows[0]);
+    }
+  })
+
   res.send("success")
 }
 
 //GET// list books by id
 let booksById = (req, res) => {
   console.log("Inside the GET list books by ID funciton", req.params.id);
-  
+
   res.send("success")
 }
 
@@ -46,4 +60,4 @@ let deleteBook = (req, res) => {
 }
 
 
-module.exports ={allBooks, booksById, genre, authors, editBookById, addBook, deleteBook};
+module.exports = { allBooks, booksById, genre, authors, editBookById, addBook, deleteBook };
