@@ -142,6 +142,44 @@ app.post("login", (req, res) => {
       res.status(401).send("Unauthorized!");
     }
   });
+
+  /**
+   * This is for creaing a new user. the JWT token is checked for appropriate role 
+   * POST/createUser -d {
+   *     username: "bob",
+   *     "password" : "somePassword",
+   *     "confirmPassword" : "somePassword"
+   * 
+   * }
+   */
+  //create a user in the database, note that we check that the JWT token is valid,
+  // and that the JWT token has admin role
+  app.post("/createUser", [checkJwt, isAdmin], (req,res) => {
+    //note that we do not include the password in the log
+    console.log("POST/createUser, ",req.body.username);
+    let username = req.body.username;
+    let password = req.body.password;
+    let confirmPassword = req.bodyconfirmPassword;
+
+    //make sure that the password and confirm password are the same 
+    if(password !== confirmPassword){
+      return res.status(400).send("Passwords do not match");
+    }
+    //generate the hash of the password that will be stored in the database
+    let passwordHash = bcrypt.hashSync(password, 10);
+    let sql = "INSERT INTO users(username, password_hash, role) values (?, ?, ?);"
+    db.query(sql, [username, passwordHash, 'user'], (err, rows) => {
+      //if the insert query returned an error, we log the error
+      //and return a failed msg back
+      if(err){
+        console.error("Failed to add user", err);
+        res.status(500).send("Failed to add user");
+      } else {
+        //if the insert statement ran without an error, then the user was created
+        res.send("User created");
+      }
+    })
+  })
 });
 
 const PORT = process.env.PORT || 5000
