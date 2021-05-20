@@ -1,4 +1,7 @@
 let connections = require("../sql/connections");
+const books = require("../data/books");
+const newUsers = require("../data/sampleuser");
+const mysql = require("mysql")
 
 //GET// list all users books
 let allBooks = (req, res) => {
@@ -117,9 +120,9 @@ let addBook = (req, res) => {
       return res.json({ newId: results.insertId });
     }
   })
+  res.send("success")
 }
-res.send("success")
-}
+
 
 //DELETE// delete book
 let deleteBook = (req, res) => {

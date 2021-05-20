@@ -1,17 +1,17 @@
 // this is an express app
 const express = require('express')
-
+const books = require('./data/books');
 //to support parsing json
 const bodyParser = require("body-parser");
 const app = express()
 
 require("dotenv").config();
-
-
-// app.use(bodyParser.json());
-// app.get('/', (req, res) => res.send('default route'));
-// app.use(require("./routes/books"));
-
+// app.use(require("./data/books"), books);
+app.use(bodyParser.urlencoded({extended:false}));
+app.use(bodyParser.json());
+app.get('/', (req, res) => res.send('Hello, I just start my server'));
+app.use(require("./routes/books"));
+app.get('/books', (req, res) => res.send(books));
 // const bcrypt = require("bcrypt");
 // const jwt = require('jsonwebtoken');
 // const { deleteBook } = require('./controller/booksCtrl');

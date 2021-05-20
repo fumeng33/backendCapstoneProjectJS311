@@ -16,7 +16,7 @@ class Connection {
           console.error("Fail to connect", err);
         }
 
-        console.log("connected, the time is", row[0]);
+        console.log("connected, the time is", rows);
       })
     }
     return this.pool
