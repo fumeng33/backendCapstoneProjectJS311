@@ -8,14 +8,14 @@ const app = express()
 require("dotenv").config();
 
 
-app.use(bodyParser.json());
-app.get('/', (req, res) => res.send('default route'));
-app.use(require("./routes/books"));
+// app.use(bodyParser.json());
+// app.get('/', (req, res) => res.send('default route'));
+// app.use(require("./routes/books"));
 
-const bcrypt = require("bcrypt");
-const jwt = require('jsonwebtoken');
-const { deleteBook } = require('./controller/booksCtrl');
-const jwtSecret = "this is the secret"
+// const bcrypt = require("bcrypt");
+// const jwt = require('jsonwebtoken');
+// const { deleteBook } = require('./controller/booksCtrl');
+// const jwtSecret = "this is the secret"
 
 //the middleware function to call when processing an authorized URL
 checkJwt = (req, res, next) => {
@@ -45,6 +45,8 @@ checkJwt = (req, res, next) => {
     //the token is valid, store the username from the token in the request, so that it is 
     //avalible to all following this call
     console.log(decoded);
+    req.email = decoded.email;
+    req.user_id = decoded.id;
     req.username = decoded.username;
     //call the next middleware function in the chain
     next();

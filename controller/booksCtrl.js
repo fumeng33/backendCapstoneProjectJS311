@@ -3,7 +3,7 @@ let connections = require("../sql/connections");
 //GET// list all users books
 let allBooks = (req, res) => {
   console.log("Inside the GET list all books funciton", req.params);
- connections.query("SELECT * FROM books", (error, rows) => {
+  connections.query("SELECT * FROM books", (error, rows) => {
     console.log("ROWS:", rows)
     if (error) {
       res.json("failed to get all books")
@@ -19,7 +19,7 @@ let allBooks = (req, res) => {
 let booksById = (req, res) => {
   console.log("Inside the GET list books by ID funciton", req.params.id);
   let id = req.params.id
-  let sql = "SELECT id, book_title FROM books WHERE id =?"
+  let sql = "SELECT id, bookTitle FROM books WHERE id =?"
   connections.query(sql, [id], (error, rows) => {
     console.log("ROWS:", rows)
     if (error) {
@@ -77,9 +77,10 @@ let editBookById = (req, res) => {
   console.log("Inside the edit book function", req.params.id);
   let id = req.params.id
   let bookTitle = req.body.bookTitle
-  let sql = `UPDATE books SET bookTitle = ? WHERE id = ${id}` // mysql statement to update book title on id 
-  
-  connections.query(sql, [`${bookTitle}`], (error, rows) => {
+  // Fix this later 
+  let sql = `UPDATE books SET bookTitle = ? WHERE id = ?` // mysql statement to update book title on id 
+  let sqlId = [id];
+  connections.query(sql, sqlId, (error, rows) => {
     console.log("ROWS:", rows)
     // error handling 
     // error === server problem type error 
@@ -93,20 +94,19 @@ let editBookById = (req, res) => {
       // if we get no rows from the database
       res.sendStatus(404);
     } else {
-      res.json({id: id, bookTitle: bookTitle, message: 'successfully update the book title.'});
+      res.json({ id: id, bookTitle: bookTitle, message: 'successfully update the book title.' });
     }
   })
-  }
-  res.send("success")
 }
+
 
 //POST// add book
 let addBook = (req, res) => {
   console.log("Inside the add book  function", req.body);
   let bookTitle = req.body.bookTitle
- let sql = "INSERT INTO ?? (??) VALUES (?)"
- const inserts = ['books', 'bookTitle', `${bookTitle}`]
- sql = mysql.format (sql, inserts)
+  let sql = "INSERT INTO ?? (??) VALUES (?)"
+  const inserts = ['books', 'bookTitle', `${bookTitle}`]
+  sql = mysql.format(sql, inserts)
   //make a connection to send the query
   connections.query(sql, (error, results) => {
     if (error) {
@@ -118,7 +118,7 @@ let addBook = (req, res) => {
     }
   })
 }
-  res.send("success")
+res.send("success")
 }
 
 //DELETE// delete book
@@ -137,7 +137,7 @@ let deleteBook = (req, res) => {
       // if we get no rows from the database
       res.sendStatus(404);
     } else {
-      res.send({ id: id, message: 'Successfully deleted a book'});
+      res.send({ id: id, message: 'Successfully deleted a book' });
     }
   })
   res.send("success")
