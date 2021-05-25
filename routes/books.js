@@ -9,7 +9,7 @@ const controller = require("../controller/booksCtrl.js");
 // router.get("/allusers", controller.allusers)
 
 //list all books list
-router.get("/allBooks", controller.allBooks)
+router.get("/", controller.allBooks)
 
 //list books
 router.get("/books/:id", controller.booksById)

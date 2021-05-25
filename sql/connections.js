@@ -9,6 +9,7 @@ class Connection {
         connectionLimit:100,
         host: 'den1.mysql5.gear.host', //process.env.DBHOST
         password: 'Olemiss082894!', 
+        user:'booksdb2',
         database: 'booksdb2'
       })
       this.pool.query('SELECT now()', (err,rows) => {

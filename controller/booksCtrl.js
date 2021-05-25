@@ -1,6 +1,6 @@
 let connections = require("../sql/connections");
 const books = require("../data/books");
-const newUsers = require("../data/sampleuser");
+const newUsers = require("../data/sampleUser");
 const mysql = require("mysql")
 
 //GET// list all users books
@@ -9,9 +9,9 @@ let allBooks = (req, res) => {
   connections.query("SELECT * FROM books", (error, rows) => {
     console.log("ROWS:", rows)
     if (error) {
-      res.json("failed to get all books")
+       res.json("failed to get all books")
     } else {
-      res.json(rows);
+       res.json(rows);
     }
   })
 
