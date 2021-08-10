@@ -14,7 +14,7 @@ router.get("/books", controller.allBooks)
 
 //list books
 router.get("/books/:id", controller.booksById)
-router.get("/title", controller.title)
+// router.get("/title", controller.title)
 
 //edit
 router.put("/books/:id", controller.editBookById)
