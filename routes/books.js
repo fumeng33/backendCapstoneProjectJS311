@@ -1,28 +1,18 @@
 const { kMaxLength } = require('buffer');
 const express = require ('express');
-const router = express.Router();
-const controller = require("../controller/booksCtrl.js");
+const router = require("express").Router();
+const bookController = require("../controllers/books");
+const { authenticateJwtToken } = require("../controllers/auth");
 
+router
+  .route("/books")
+  .get(authenticateJwtToken, bookController.getAllBooks)
+  .post(authenticateJwtToken, bookController.createBook);
 
-// const controller = require("../controller/usersCtrl.js");
-
-//list users 
-// router.get("/allusers", controller.allusers)
-
-//list all books list
-router.get("/books", controller.allBooks)
-
-//list books
-router.get("/books/:id", controller.booksById)
-// router.get("/title", controller.title)
-
-//edit
-router.put("/books/:id", controller.editBookById)
-
-//add
-router.post("/books", controller.addBook)
-
-//delete
-router.delete("/books/:id", controller.deleteBook)
+router
+  .route("/books/:id")
+  .get(authenticateJwtToken, bookController.getBookById)
+  .put(authenticateJwtToken, bookController.updateBook)
+  .delete(authenticateJwtToken, bookController.deleteBook);
 
 module.exports = router;
