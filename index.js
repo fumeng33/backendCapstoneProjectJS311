@@ -2,25 +2,34 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const helmet = require('helmet')
+const morgan = require('morgan')
+const booksRouter = require("./routers/books");
+const usersRouter = require("./routers/users");
+const bodyParser = require('body-parser')
+const authRouter = require("./routers/auth");
 
-const booksRoute = require("./routes/books");
-const usersRoute = require("./routes/users");
-const authRoute = require("./routes/auth");
-
-const expressApp = express();
+const app = express();
 const port = process.env.PORT || 3001;
 
-expressApp.use(express.urlencoded({ extended: true }));
-expressApp.use(express.json());
-expressApp.use(cors());
-expressApp.use(booksRoute);
-expressApp.use(usersRoute);
-expressApp.use(authRoute);
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json())
+app.use(cors());
+app.use(helmet());
 
-expressApp.get("/", function (_, response) {
-  response.send("Express App running!");
-});
+// app.use(morgan('combined'))
 
-expressApp.listen(port, function () {
-  console.log(`Express App running on port ${port}`);
-});
+app.use('/books', booksRouter)
+app.use('/users', usersRouter)
+
+app.use('/auth', authRouter)
+
+
+app.get('/', (req, res)=> {
+  res.send('Welcome to my book API! add /books to the url to view the list of all books')
+})
+
+
+app.listen(port, () => {
+  console.log(`Listening on port ${port}`)
+})

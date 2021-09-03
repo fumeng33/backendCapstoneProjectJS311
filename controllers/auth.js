@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt");
+// const bcrypt = require("bcrypt");
 const { getUserByEmail, createUser } = require("./users");
 
 function signIn(request, response) {
@@ -61,11 +61,11 @@ function comparePasswords(plainTextPassword, encryptedPassword) {
   return areEqual;
 }
 
-function encryptPassword(plainTextPassword) {
-  const salt = bcrypt.genSaltSync(10);
-  const hash = bcrypt.hashSync(plainTextPassword, salt);
-  return hash;
-}
+// function encryptPassword(plainTextPassword) {
+//   const salt = bcrypt.genSaltSync(10);
+//   const hash = bcrypt.hashSync(plainTextPassword, salt);
+//   return hash;
+// }
 
 function generateJwtToke(id) {
   const token = jwt.sign({ id }, process.env.JWT_SECRET);
