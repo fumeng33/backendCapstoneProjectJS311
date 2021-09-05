@@ -1,5 +1,6 @@
 const mysql = require('mysql')
 const pool = require('../sql/connection')
+const find = require ("lodash")
 const { handleSQLError } = require('../sql/error')
 
 const getAllUsers = (req, res) => {
@@ -19,15 +20,24 @@ const getUserById = (req, res) => {
   })
 }
 
-const getUserByEmail = (req, res) => {
-  let sql = "SELECT * FROM userlist WHERE email = ? "
-  sql = mysql.format(sql, [req.params.id])
+function getUserByEmail(email) {
+  const user = find(users, { email });
 
-  pool.query(sql, (err, rows) => {
-    if (err) return handleSQLError(res, err)
-    return res.json(rows);
-  })
+  if (!user) {
+    return null;
+  }
+
+  return user;
 }
+// const getUserByEmail = (req, res) => {
+//   let sql = "SELECT * FROM userlist WHERE email = ? "
+//   sql = mysql.format(sql, [req.params.id])
+
+//   pool.query(sql, (err, rows) => {
+//     if (err) return handleSQLError(res, err)
+//     return res.json(rows);
+//   })
+// }
 
 const createUser = (req, res) => {
   let sql = "INSERT INTO userlist (name, email, password) VALUES(?, ?, ?)" 

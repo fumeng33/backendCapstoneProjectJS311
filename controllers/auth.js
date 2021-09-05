@@ -1,3 +1,4 @@
+const mysql = require("mysql");
 const jwt = require("jsonwebtoken");
 // const bcrypt = require("bcrypt");
 const { getUserByEmail, createUser } = require("./users");
@@ -15,8 +16,30 @@ function signIn(request, response) {
   response.json({ token });
 }
 
-function signUp(request, response) {
-  const { email, password, name } = request.body;
+// function signIn(req, res) {
+//   const { email, password } = req.body;
+//   console.log(email + password + "this is the back-end");
+
+//   function getUserByEmail(email) {
+//     const user = find(users, { email });
+  
+//     if (!user) {
+//       return null;
+//     }
+  
+//     return user;
+//   }
+
+  // if (!user || !comparePasswords(password, user.password)) {
+  //   response.status(400).send("incorrect email or password");
+  //   return;
+  // }
+  // const token = generateJwtToke(user.id);
+  // response.json({ token });
+// }
+
+function signUp(req, res) {
+  const { email, password, name } = req.body;
 
   const user = getUserByEmail(email);
 
@@ -32,8 +55,8 @@ function signUp(request, response) {
 }
 
 //middleware
-function authenticateJwtToken(request, response, next) {
-  const { authorization } = request.headers;
+function authenticateJwtToken(req, response, next) {
+  const { authorization } = req.headers;
   const token = authorization && authorization.split(" ")[1];
 
   if (!token) {
@@ -47,7 +70,7 @@ function authenticateJwtToken(request, response, next) {
       return;
     }
 
-    request.user = user;
+    req.user = user;
 
     next();
   });
