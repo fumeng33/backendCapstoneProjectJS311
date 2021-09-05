@@ -1,20 +1,68 @@
 const mysql = require("mysql");
 const jwt = require("jsonwebtoken");
-// const bcrypt = require("bcrypt");
+const bcrypt = require("bcrypt");
+const pool = require("../sql/connection")
+const { handleSQLError } = require('../sql/error')
 const { getUserByEmail, createUser } = require("./users");
 
-function signIn(request, response) {
-  const { email, password } = request.body;
+const saltRounds = 10;
 
-  const user = getUserByEmail(email);
+const signIn = (req, res) => {
+  const { email, password } = req.body
+  let sql = "SELECT * FROM userlist WHERE email = ?"
+  sql = mysql.format(sql, [ email ])
 
-  if (!user || !comparePasswords(password, user.password)) {
-    response.status(400).send("incorrect email or password");
-    return;
-  }
-  const token = generateJwtToke(user.id);
-  response.json({ token });
+  pool.query(sql, (err, rows) => {
+    if (err) return handleSQLError(res, err)
+    if (!rows.length) return res.status(404).send('No matching users')
+
+    const hash = rows[0].password
+    bcrypt.compare(password, hash)
+      .then(result => {
+        if (!result) return res.status(400).send('Invalid password')
+
+        const data = { ...rows[0] }
+        data.password = 'REDACTED'
+
+        const token = jwt.sign(data, 'secret')
+        res.json({
+          msg: 'Login successful',
+          token,
+          email: email
+        })
+      })
+  })
 }
+
+const signUp = (req, res) => {
+  const { name, email, password } = req.body
+  let sql = "INSERT INTO userlist (name, email, password) VALUES (?, ?, ?)"
+
+  bcrypt.hash(password, saltRounds, function(err, hash) {
+    sql = mysql.format(sql, [ name, email, hash ])
+  
+    pool.query(sql, (err, result) => {
+      if (err) {
+        if (err.code === 'ER_DUP_ENTRY') return res.status(409).send('Username is taken')
+        return handleSQLError(res, err)
+      }
+      return res.send('Sign-up successful')
+    })
+  })
+}
+
+// function signIn(request, response) {
+//   const { email, password } = request.body;
+
+//   const user = getUserByEmail(email);
+
+//   if (!user || !comparePasswords(password, user.password)) {
+//     response.status(400).send("incorrect email or password");
+//     return;
+//   }
+//   const token = generateJwtToke(user.id);
+//   response.json({ token });
+// }
 
 // function signIn(req, res) {
 //   const { email, password } = req.body;
@@ -38,21 +86,21 @@ function signIn(request, response) {
   // response.json({ token });
 // }
 
-function signUp(req, res) {
-  const { email, password, name } = req.body;
+// function signUp(req, res) {
+//   const { email, password, name } = req.body;
 
-  const user = getUserByEmail(email);
+//   const user = getUserByEmail(email);
 
-  if (user) {
-    response.status(400).send("email already used");
-    return;
-  }
+//   if (user) {
+//     response.status(400).send("email already used");
+//     return;
+//   }
 
-  const encryptedPassword = encryptPassword(password);
-  const newUser = createUser(email, encryptedPassword, name);
-  const token = generateJwtToke(newUser.id);
-  response.json({ token });
-}
+//   const encryptedPassword = encryptPassword(password);
+//   const newUser = createUser(email, encryptedPassword, name);
+//   const token = generateJwtToke(newUser.id);
+//   response.json({ token });
+// }
 
 //middleware
 function authenticateJwtToken(req, response, next) {
