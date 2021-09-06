@@ -12,7 +12,7 @@ const getAllBooks = (req, res) => {
 }
 
 const getBookById = (req, res) => {
-  let sql = "SELECT * FROM bookList WHERE book_id = ? "
+  let sql = "SELECT * FROM books WHERE book_id = ? "
   sql = mysql.format(sql, [req.params.id])
 
   pool.query(sql, (err, rows) => {
@@ -22,7 +22,7 @@ const getBookById = (req, res) => {
 }
 
 const createBook = (req, res) => {
-  let sql = "INSERT INTO bookList (title, author, year, category) VALUES(?, ?, ?, ?)" 
+  let sql = "INSERT INTO books (title, author, year, category) VALUES(?, ?, ?, ?)" 
   console.log(req.body)
   sql = mysql.format(sql, [eq.body.title,req.body.author,req.body.year, req.body.category])
 

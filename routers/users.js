@@ -5,8 +5,8 @@ const usersController = require('../controllers/users')
 router.get('/', usersController.getAllUsers)
 
 router.get('/:id', usersController.getUserById)
+router.get('/login', usersController.getUserByEmail)
 
-router.get('/:email', usersController.getUserByEmail)
 
 
 router.post('/register', usersController.createUser)
