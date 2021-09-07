@@ -35,19 +35,19 @@ const getUserById = (req, res) => {
 }
 
 
-const getUserByEmail = (req, res) => {
-  let email = req.body.email
-  sql = mysql.format(sql, [email])
+// const getUserByEmail = (req, res) => {
+//   let email = req.body.email
+//   sql = mysql.format(sql, [email])
 
-  pool.query("SELECT * FROM userlist WHERE email = ? ", (err, rows) => {
-    if (err) {
-      console.error('err when creating db', err)
-      res.sendStatus(500)
-    }
-    else {
-      res.json(rows);
-    }
-  })
+//   pool.query("SELECT * FROM userlist WHERE email = ? ", (err, rows) => {
+//     if (err) {
+//       console.error('err when creating db', err)
+//       res.sendStatus(500)
+//     }
+//     else {
+//       res.json(rows);
+//     }
+//   })
 
   // let sql = "SELECT * FROM booksdb2.userlist WHERE email = ? "
   // sql = mysql.format(sql, [req.body.email])
@@ -56,7 +56,28 @@ const getUserByEmail = (req, res) => {
   //   if (err) return handleSQLError(res, err)
   //   return res.json(rows);
   // })
-}
+// }
+
+const getUserByEmail = (req, res) => {
+  console.log("Inside the GET function", req.params)
+  let email = req.body.email
+  let sql = "SELECT *  FROM userlist WHERE email =?"
+  //make a connection to send the query
+  connections.query(sql, [email], function (error, rows) {
+    console.log("ROWS:", rows)
+    if (error) {
+      // if we get an error from the db
+      console.error("Failed to query the db", error);
+      //send error 500
+      res.sendStatus(500);
+    } else if (!rows || rows.length == 0) {
+      // if we get no rows from the database
+      res.sendStatus(404);
+    } else {
+      res.send(rows[0]);
+    }
+  })
+
 
 const createUser = (req, res) => {
   let sql = "INSERT INTO userlist (name, email, password) VALUES(?, ?, ?)" 
