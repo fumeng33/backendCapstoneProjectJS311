@@ -20,9 +20,9 @@ app.use(helmet());
 // app.use(morgan('combined'))
 
 app.use( '/books', booksRouter)
-app.use( '/users', usersRouter)
+// app.use( '/users', usersRouter)
 
-app.use(authRouter)
+// app.use('/auth', authRouter)
 
 
 app.get('/', (req, res)=> {

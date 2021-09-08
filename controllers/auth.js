@@ -1,6 +1,6 @@
 // const mysql = require("mysql");
 // const jwt = require("jsonwebtoken");
-// // const bcrypt = require("bcrypt");
+// const bcrypt = require("bcrypt");
 // const { getUserByEmail, createUser } = require("./users");
 
 
@@ -8,22 +8,14 @@
 //   const { email, password } = req.body;
 //   console.log(email + password + "this is the back-end");
 
-//   function getUserByEmail(email) {
-//     const user = find(users, { email });
-  
-//     if (!user) {
-//       return null;
-//     }
-  
-//     return user;
-//   }
+//   const user =getUserByEmail(email);
 
 //   if (!user || !comparePasswords(password, user.password)) {
-//     response.status(400).send("incorrect email or password");
+//     res.status(400).send("incorrect email or password");
 //     return;
 //   }
 //   const token = generateJwtToke(user.id);
-//   response.json({ token });
+//   res.json({ token });
 // }
 
 // function signUp(req, res) {
@@ -37,9 +29,9 @@
 //   }
 
 //   const encryptedPassword = encryptPassword(password);
-//   const newUser = createUser(email, encryptedPassword, name);
-//   const token = generateJwtToke(newUser.id);
-//   response.json({ token });
+//   const newUserId = createUser(email, encryptedPassword, name);
+//   const token = generateJwtToke(newUserId);
+//   res.json({ token });
 // }
 
 // //middleware
@@ -72,11 +64,11 @@
 //   return areEqual;
 // }
 
-// // function encryptPassword(plainTextPassword) {
-// //   const salt = bcrypt.genSaltSync(10);
-// //   const hash = bcrypt.hashSync(plainTextPassword, salt);
-// //   return hash;
-// // }
+// function encryptPassword(plainTextPassword) {
+//   const salt = bcrypt.genSaltSync(10);
+//   const hash = bcrypt.hashSync(plainTextPassword, salt);
+//   return hash;
+// }
 
 // function generateJwtToke(id) {
 //   const token = jwt.sign({ id }, process.env.JWT_SECRET);
