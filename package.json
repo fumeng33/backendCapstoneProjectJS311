@@ -20,7 +20,10 @@
   "dependencies": {
     "axios": "^0.21.1",
     "bcrypt": "^5.0.1",
+<<<<<<< HEAD
     "bcryptjs": "^2.4.3",
+=======
+>>>>>>> ea83ff91efd4f8dbea22e6414f00df6c22f3604a
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "dotenv": "^9.0.2",
