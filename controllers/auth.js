@@ -1,40 +1,77 @@
 const mysql = require("mysql");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const { getUserByEmail, createUser } = require("./users");
+const pool = require("../sql/connection");
 
-
-async function signIn(req, res) {
+function signIn(req, res) {
   const { email, password } = req.body;
-  console.log(email + password + "this is the back-end");
 
-  const user = await getUserByEmail(email);
-  console.log(user + "this is the user")
- 
-  if (!user || password != user.password) {
-    res.status(400).send("incorrect email or password");
+  //get the user my email
+  const sql = mysql.format("SELECT *  FROM userlist WHERE email = ?", [email]);
+
+  pool.query(sql, (error, results) => {
+    if (error) {
+      res.status(500).send("Error with SQL");
+      return;
+    }
+
+    const user = results[0];
+
+    if (!user || !comparePasswords(password, user.password)) {
+      res.status(400).send("incorrect email or password");
+      return;
+    }
+
+    const token = generateJwtToken(user.id);
+    res.json({ token });
     return;
-  }
-  const token = generateJwtToke(user.id);
-  res.json({ token });
+  });
 }
-
 
 async function signUp(req, res) {
   const { email, password, name } = req.body;
 
-  const user = await getUserByEmail(email);
-  console.log(user)
+  //we need to queries in order for this to work
+  //first, make sure the user does not exist
+  //second, the new user creation (insert into)
 
-  if (user) {
-    response.status(400).send("email already used");
-    return;
-  }
+  //get the user my email
+  const queryToGetUser = mysql.format(
+    "SELECT *  FROM userlist WHERE email = ?",
+    [email]
+  );
 
-  // const encryptedPassword = encryptPassword(password);
-  const newUserId = createUser(email, password, name);
-  const token = generateJwtToke(newUserId);
-  res.json({ token });
+  pool.query(queryToGetUser, (error, results) => {
+    if (error) {
+      res.status(500).send("Error with SQL");
+      return;
+    }
+
+    const user = results[0];
+
+    if (user) {
+      response.status(400).send("email already used");
+      return;
+    }
+
+    const encryptedPassword = encryptPassword(password);
+
+    //we now know the email used to create the new account has not been used
+    //we can safely create (insert into) the new user
+    const insertNewUser = mysql.format(
+      "INSERT INTO userlist (name, email, password) VALUES(?, ?, ?)",
+      [name, email, encryptedPassword]
+    );
+
+    pool.query(insertNewUser, (error, results) => {
+      if (error) {
+        res.status(500).send("Error with SQL");
+        return;
+      }
+      const token = generateJwtToken(results.insertId);
+      res.json({ token });
+    });
+  });
 }
 
 //middleware
@@ -73,7 +110,7 @@ function encryptPassword(plainTextPassword) {
   return hash;
 }
 
-function generateJwtToke(id) {
+function generateJwtToken(id) {
   const token = jwt.sign({ id }, process.env.JWT_SECRET);
   return token;
 }
