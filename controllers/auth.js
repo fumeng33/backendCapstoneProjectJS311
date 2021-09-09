@@ -1,78 +1,120 @@
-// const mysql = require("mysql");
-// const jwt = require("jsonwebtoken");
-// const bcrypt = require("bcrypt");
-// const { getUserByEmail, createUser } = require("./users");
+const mysql = require("mysql");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
+const { getUserByEmail, createUser } = require("./users");
+const pool = require("../sql/connection");
+const { result } = require("lodash");
 
+function signIn(req, res) {
+  const { email, password } = req.body;
 
-// function signIn(req, res) {
-//   const { email, password } = req.body;
-//   console.log(email + password + "this is the back-end");
+  //get the user my email
+  const sql = mysql.format("SELECT *  FROM userlist WHERE email = ?", [email]);
 
-//   const user =getUserByEmail(email);
+  pool.query(sql, (error, results) => {
+    if (error) {
+      res.status(500).send("Error with SQL");
+      return;
+    }
 
-//   if (!user || !comparePasswords(password, user.password)) {
-//     res.status(400).send("incorrect email or password");
-//     return;
-//   }
-//   const token = generateJwtToke(user.id);
-//   res.json({ token });
-// }
+    const user = results[0];
 
-// function signUp(req, res) {
-//   const { email, password, name } = req.body;
+    if (!user || !comparePasswords(password, user.password)) {
+      res.status(400).send("incorrect email or password");
+      return;
+    }
 
-//   const user = getUserByEmail(email);
+    const token = generateJwtToken(user.id);
+    res.json({ token });
+    return;
+  });
+}
 
-//   if (user) {
-//     response.status(400).send("email already used");
-//     return;
-//   }
+async function signUp(req, res) {
+  const { email, password, name } = req.body;
 
-//   const encryptedPassword = encryptPassword(password);
-//   const newUserId = createUser(email, encryptedPassword, name);
-//   const token = generateJwtToke(newUserId);
-//   res.json({ token });
-// }
+  //we need to queries in order for this to work
+  //first, make sure the user does not exist
+  //second, the new user creation (insert into)
 
-// //middleware
-// function authenticateJwtToken(req, response, next) {
-//   const { authorization } = req.headers;
-//   const token = authorization && authorization.split(" ")[1];
+  //get the user my email
+  const queryToGetUser = mysql.format(
+    "SELECT *  FROM userlist WHERE email = ?",
+    [email]
+  );
 
-//   if (!token) {
-//     response.status(401).send("Token missing");
-//     return;
-//   }
+  pool.query(queryToGetUser, (error, results) => {
+    if (error) {
+      res.status(500).send("Error with SQL");
+      return;
+    }
 
-//   jwt.verify(token, process.env.JWT_SECRET, function (error, user) {
-//     if (error) {
-//       response.status(403).send("Invalid token");
-//       return;
-//     }
+    const user = results[0];
 
-//     req.user = user;
+    if (user) {
+      response.status(400).send("email already used");
+      return;
+    }
 
-//     next();
-//   });
+    const encryptedPassword = encryptPassword(password);
 
-//   next();
-// }
+    //we now know the email used to create the new account has not been used
+    //we can safely create (insert into) the new user
+    const insertNewUser = mysql.format(
+      "INSERT INTO userlist (name, email, password) VALUES(?, ?, ?)",
+      [name, email, encryptedPassword]
+    );
 
-// // helper functions
-// function comparePasswords(plainTextPassword, encryptedPassword) {
-//   const areEqual = bcrypt.compareSync(plainTextPassword, encryptedPassword);
-//   return areEqual;
-// }
+    pool.query(insertNewUser, (error, results) => {
+      if (error) {
+        res.status(500).send("Error with SQL");
+        return;
+      }
+      const token = generateJwtToken(results.insertId);
+      res.json({ token });
+    });
+  });
+}
 
-// function encryptPassword(plainTextPassword) {
-//   const salt = bcrypt.genSaltSync(10);
-//   const hash = bcrypt.hashSync(plainTextPassword, salt);
-//   return hash;
-// }
+//middleware
+function authenticateJwtToken(req, response, next) {
+  const { authorization } = req.headers;
+  const token = authorization && authorization.split(" ")[1];
 
-// function generateJwtToke(id) {
-//   const token = jwt.sign({ id }, process.env.JWT_SECRET);
-//   return token;
-// }
+  if (!token) {
+    response.status(401).send("Token missing");
+    return;
+  }
 
-// module.exports = { signIn, signUp, authenticateJwtToken };
+  jwt.verify(token, process.env.JWT_SECRET, function (error, user) {
+    if (error) {
+      response.status(403).send("Invalid token");
+      return;
+    }
+
+    req.user = user;
+
+    next();
+  });
+
+  next();
+}
+
+// helper functions
+function comparePasswords(plainTextPassword, encryptedPassword) {
+  const areEqual = bcrypt.compareSync(plainTextPassword, encryptedPassword);
+  return areEqual;
+}
+
+function encryptPassword(plainTextPassword) {
+  const salt = bcrypt.genSaltSync(10);
+  const hash = bcrypt.hashSync(plainTextPassword, salt);
+  return hash;
+}
+
+function generateJwtToken(id) {
+  const token = jwt.sign({ id }, process.env.JWT_SECRET);
+  return token;
+}
+
+module.exports = { signIn, signUp, authenticateJwtToken };
