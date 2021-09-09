@@ -50,7 +50,7 @@ async function signUp(req, res) {
     const user = results[0];
 
     if (user) {
-      response.status(400).send("email already used");
+      res.status(400).send("email already used");
       return;
     }
 
@@ -75,18 +75,18 @@ async function signUp(req, res) {
 }
 
 //middleware
-function authenticateJwtToken(req, response, next) {
+function authenticateJwtToken(req, res, next) {
   const { authorization } = req.headers;
   const token = authorization && authorization.split(" ")[1];
 
   if (!token) {
-    response.status(401).send("Token missing");
+    res.status(401).send("Token missing");
     return;
   }
 
   jwt.verify(token, process.env.JWT_SECRET, function (error, user) {
     if (error) {
-      response.status(403).send("Invalid token");
+      res.status(403).send("Invalid token");
       return;
     }
 
