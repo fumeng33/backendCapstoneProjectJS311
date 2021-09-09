@@ -1,9 +1,7 @@
 const mysql = require("mysql");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const { getUserByEmail, createUser } = require("./users");
 const pool = require("../sql/connection");
-const { result } = require("lodash");
 
 function signIn(req, res) {
   const { email, password } = req.body;
