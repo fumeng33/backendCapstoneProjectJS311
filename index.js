@@ -24,7 +24,7 @@ app.use("/auth", authRouter);
 
 app.get("/", (req, res) => {
   res.send(
-    "Welcome to my book API! add /books to the url to view the list of all books"
+    "Welcome to my server! add /books to the url to view the list of all books"
   );
 });
 
